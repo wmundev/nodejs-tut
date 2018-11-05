@@ -34,19 +34,19 @@ server.on('listening', onListening);
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+    var port = parseInt(val, 10);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
 
-  return false;
+    return false;
 }
 
 /**
@@ -54,27 +54,27 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+    var bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 /**
@@ -82,9 +82,66 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+    var addr = server.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+}
+
+
+// const http = require('http');
+
+const ports = 4000;
+const hostname = 'localhost';
+const url = require('url');
+const express = require("require");
+
+const app = express();
+
+app.get("/", (req, res, next) => {
+    return res.send('hello, i am a web server');
+});
+
+const servers = http.createServer(function (req, res) {
+    const parsedUrl = url.parse(req.url, true);
+
+    const parseObj = new url.URL(hostname + ":" + ports + req.url);
+
+    if (parsedUrl.pathname === "/hello") {
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end('Hello my friend');
+    } else if (parsedUrl.pathname === '/greeting') {
+        //searchParams only work if it is a full url object
+        console.log(parseObj.searchParams.get("name"));
+
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        res.end(parseObj);
+
+    } else {
+        res.writeHead(404, {'Content-Type': 'text/plain'});
+        res.end();
+    }
+});
+
+servers.listen(ports, hostname, () => {
+    console.log(`server running at http://${hostname}:${ports}`);
+});
+
+const assert = require('assert');
+
+// Generate an AssertionError to compare the error message later:
+const {message} = new assert.AssertionError({
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual'
+});
+
+// Verify error output:
+try {
+    assert.strictEqual(1, 2);
+} catch (e) {
+    assert(e instanceof assert.AssertionError);
+    assert.strictEqual(e.message, message);
+
 }
